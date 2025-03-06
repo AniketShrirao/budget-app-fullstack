@@ -1,0 +1,69 @@
+.transaction-form {
+  background-image: var(--Paper-overlay);
+  color: var(--mui-palette-text-primary);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: fit-content;
+  width: 22%;
+
+  .MuiTextField-root {
+    width: 100%;
+    margin-bottom: 15px;
+    background: var(--mui-palette-background-paper);
+  }
+
+  .MuiInputLabel-root {
+    color: var(--mui-palette-text-secondary);
+  }
+  
+  .MuiOutlinedInput-root {
+    fieldset {
+      border-color: var(--mui-palette-divider);
+    }
+  }
+
+  .MuiCheckbox-root {
+    color: var(--mui-palette-text-secondary);
+  }
+
+  label.MuiFormControlLabel-root {
+    width: fit-content;
+    color: var(--mui-palette-text-secondary);
+  }
+
+  .important-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .submit-button {
+    width: 100%;
+    background-color: var(--mui-palette-primary-main);
+    color: var(--mui-palette-primary-contrastText);
+    font-size: 1.1rem;
+    padding: 12px;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: var(--mui-palette-primary-dark);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .transaction-form {
+    padding: 15px;
+    width: 100%;
+  }
+
+  .submit-button {
+    font-size: 1rem;
+  }
+}

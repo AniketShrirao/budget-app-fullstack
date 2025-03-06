@@ -1,0 +1,14 @@
+.MuiContainer-root.transaction-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+
+  .months-tabs {
+    justify-content: flex-start;
+    flex-direction: column;
+
+    div[role='tablist'] {
+      justify-content: flex-start;
+    }
+  }
+}

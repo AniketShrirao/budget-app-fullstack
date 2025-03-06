@@ -1,0 +1,9 @@
+.dashboard {
+    .tab-panel {
+        &-types {
+            button.MuiButton-containedPrimary {
+                width: 50%;
+            }
+        }
+    }
+}

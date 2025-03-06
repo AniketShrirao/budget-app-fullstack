@@ -1,0 +1,218 @@
+.header {
+  background-color: #1a1a1a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+
+  .toolbar {
+    min-height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+
+    .logo {
+      font-weight: 600;
+      color: white;
+      margin-right: 32px;
+    }
+
+    .desktop-nav {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+
+      @media (max-width: 900px) {
+        display: none;
+      }
+
+      a {
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        transition: background 0.3s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        &.active {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
+    }
+
+    .mobile-menu-button {
+      display: none;
+      margin-left: auto;
+
+      @media (max-width: 900px) {
+        display: block;
+      }
+    }
+  }
+}
+
+.mobile-menu {
+  .MuiBackdrop-root {
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+
+  .MuiPaper-root {
+    width: 100% !important;
+    height: 100vh !important;
+    position: fixed !important;
+    background-color: #1a1a1a !important;
+    border-radius: 0;
+
+    .MuiList-root {
+      height: 100% !important;
+      padding: 20px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+    }
+
+    .mobile-menu-header {
+      flex-shrink: 0;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .mobile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .user-name {
+          color: white;
+        }
+      }
+
+      .close-button {
+        svg { 
+          fill: white;
+        }
+        padding: 8px;
+        transition: background 0.3s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+
+    .MuiList-root > div:not(.mobile-menu-header):not(.mobile-menu-footer) {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 24px 0;
+    }
+
+    .MuiMenuItem-root {
+      color: white !important;
+      font-size: 1.25rem;
+      padding: 16px 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.3s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .mobile-menu-footer {
+      flex-shrink: 0;
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: auto;
+
+      .MuiButton-root {
+        color: white;
+        font-size: 1rem;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        transition: background 0.3s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+  }
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  padding-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
+
+  @media (max-width: 600px) {
+    padding-top: var(--header-height-mobile);
+  }
+}
+
+:root {
+  --header-height: 64px;
+  --header-height-mobile: 56px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mobile-menu-popover {
+  .MuiPopover-paper {
+    max-height: 95vh !important;
+    padding: 20px 0;
+  }
+}

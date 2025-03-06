@@ -1,0 +1,65 @@
+.landing-page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  background-color: var(--mui-palette-background-default);
+
+  .auth-container {
+    width: 100%;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .intro {
+    .title {
+      color: var(--mui-palette-text-primary);
+      margin-bottom: 24px;
+    }
+
+    .description {
+      color: var(--mui-palette-text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  .sign-in-button {
+    background-color: var(--mui-palette-primary-main);
+    color: var(--mui-palette-primary-contrastText);
+    font-size: 1.2rem;
+    padding: 15px 30px;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: var(--mui-palette-primary-dark);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .title {
+      font-size: 2rem;
+    }
+
+    .description {
+      font-size: 1rem;
+    }
+
+    .sign-in-button {
+      font-size: 1rem;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

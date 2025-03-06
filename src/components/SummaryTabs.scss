@@ -1,0 +1,82 @@
+.summary-tabs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+
+  .summary-table {
+    flex: 1;
+    max-width: 50%;
+    min-width: 300px;
+    margin: 20px 0;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+
+    & .MuiButton-containedPrimary {
+      margin: 16px auto;
+      width: 50%;
+
+      @media (max-width: 768px) {        
+        width: 70%;
+      }
+    }
+  }
+
+  .summary-table-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .summary-chart {
+    flex: 1;
+    max-width: 50%;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+
+    > div {
+      width: 100%;
+    }
+  }
+
+  .category-breakdown-chart {
+    flex: 1;
+    max-width: 50%;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+
+    .recharts-tooltip-label {
+      display: none;
+    }
+
+    .recharts-layer .recharts-pie-sector path {
+      outline: none;
+    }
+
+  }
+
+  @media (max-width: 768px) {
+    .summary-table-container {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .summary-table,
+    .summary-chart,
+    .category-breakdown-chart {
+      max-width: 100%;
+      min-width: 100%;
+    }
+  }
+}

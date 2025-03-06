@@ -1,0 +1,34 @@
+body, html {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: 'Roboto', sans-serif;
+  overflow-x: hidden;
+}
+
+div#root {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Prevent body scroll when menu is open */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield; /* Firefox */
+}

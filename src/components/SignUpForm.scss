@@ -1,0 +1,16 @@
+.signup-form-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .MuiTextField-root {
+    margin-bottom: 16px;
+  }
+
+  .MuiButton-root {
+    margin-top: 16px;
+  }
+} 

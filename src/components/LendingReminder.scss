@@ -1,0 +1,168 @@
+.lending-reminders-card {
+  background-color: var(--mui-palette-background-paper);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .MuiCardContent-root {
+    padding: 0;
+  }
+  
+  .MuiTypography-h4 {
+    color: var(--mui-palette-text-primary);
+    font-weight: 600;
+    margin: 24px;
+  }
+
+  .lending-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    
+    th {
+      background: var(--mui-palette-background-default);
+      color: var(--mui-palette-text-secondary);
+      font-weight: 500;
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--mui-palette-divider);
+      text-align: left;
+    }
+
+    td {
+      padding: 16px;
+      color: var(--mui-palette-text-primary);
+      border-bottom: 1px solid var(--mui-palette-divider);
+      font-size: 0.9375rem;
+
+      .MuiTextField-root, .MuiSelect-root {
+        background: var(--mui-palette-background-default);
+        border-radius: 8px;
+        width: 100%;
+      }
+    }
+
+    tr {
+      &:hover {
+        background: var(--mui-palette-background-default);
+      }
+
+      td:last-child {
+        text-align: right;
+        width: 120px;
+      }
+    }
+
+    .MuiIconButton-root {
+      padding: 8px;
+      color: #6B7280;
+      
+      &:hover {
+        background: var(--mui-palette-background-default);
+        color: var(--mui-palette-text-secondary);
+      }
+    }
+
+    @media (max-width: 768px) {
+      thead {
+        display: none;
+      }
+
+      tr {
+        display: block;
+        margin-bottom: 16px;
+        border: 1px solid var(--mui-palette-divider);;
+        border-radius: 8px;
+        background: var(--mui-palette-background-default);
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--mui-palette-divider);;
+        font-size: 0.875rem;
+
+        &:before {
+          content: attr(data-label);
+          color: #6B7280;
+          font-weight: 500;
+          flex: 0 0 auto;
+        }
+
+        > span, 
+        > div,
+        .MuiTextField-root,
+        .MuiSelect-root {
+          text-align: right;
+          width: auto;
+          min-width: 150px;
+        }
+
+        &:last-child {
+          border-bottom: none;
+          justify-content: flex-end;
+          gap: 8px;
+
+          &:before {
+            display: none;
+          }
+        }
+
+        &[data-label="Amount"] > span {
+          &:before {
+            content: "₹";
+            margin-right: 2px;
+          }
+        }
+      }
+    }
+
+    @media (max-width: 480px) {
+      .MuiTextField-root, .MuiSelect-root {
+        max-width: 100px;
+      }
+
+      td > span,
+      td > div,
+      td > .MuiTextField-root,
+      td > .MuiSelect-root {
+        min-width: 135px;
+        max-width: 100px;
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--mui-palette-text-secondary);
+    
+    .MuiButton-root {
+      margin-top: 1rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .lending-reminders-card .lending-table td > span, 
+  .lending-reminders-card .lending-table td > div, 
+  .lending-reminders-card .lending-table td .MuiTextField-root, 
+  .lending-reminders-card .lending-table td .MuiSelect-root {
+      text-align: right;
+      width: auto;
+      min-width: 150px;
+      flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .lending-reminders-card .lending-table td > span, 
+  .lending-reminders-card .lending-table td > div,
+  .lending-reminders-card .lending-table td .MuiTextField-root,
+  .lending-reminders-card .lending-table td .MuiSelect-root {
+      max-width: 100px;
+      min-width: 135px;
+  }
+}
+

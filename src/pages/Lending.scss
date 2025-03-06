@@ -1,0 +1,59 @@
+.lending-container {
+  max-width: 1400px;
+  margin: 32px auto;
+  padding: 0 24px;
+  background-color: var(--mui-palette-background-default);
+
+  .MuiTypography-h4 {
+    color: var(--mui-palette-text-primary);
+    font-weight: 600;
+    margin-bottom: 32px;
+    font-size: 1.875rem;
+  }
+
+  .lending-grid {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    gap: 32px;
+    align-items: start;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .lending-form {
+    width: 100%;
+    min-width: 300px;
+    background-color: var(--mui-palette-background-paper);
+    
+    .MuiFormControl-root {
+      width: 100%;
+      .MuiInputBase-root {
+        width: 100%;
+        color: var(--mui-palette-text-primary);
+        &.Mui-focused {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .lending-table {
+    width: 100%;
+  }
+
+  @media (max-width: 960px) {
+    margin: 24px auto;
+    padding: 0 16px;
+
+    .MuiTypography-h4 {
+      font-size: 1.5rem;
+      margin-bottom: 24px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+}
