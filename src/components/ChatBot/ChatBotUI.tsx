@@ -22,6 +22,7 @@ interface ChatBotUIProps {
   onInputChange: (value: string) => void;
   onVoiceInput: () => void;
   setInputValueAndSend: (value: string) => void;
+  onActivationIndicatorClick: () => void;
 }
 
 export const ChatBotUI: React.FC<ChatBotUIProps> = ({
@@ -39,10 +40,18 @@ export const ChatBotUI: React.FC<ChatBotUIProps> = ({
   onSend,
   onInputChange,
   onVoiceInput,
-  setInputValueAndSend
+  setInputValueAndSend,
+  onActivationIndicatorClick
 }) => {
   const theme = useTheme();
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      onSend();
+    }
+  };
+  
   return (
     <>
       {!isOpen && (
@@ -60,8 +69,10 @@ export const ChatBotUI: React.FC<ChatBotUIProps> = ({
           >
             <ChatIcon />
           </Fab>
-          {isListeningForActivation && (
+          {(
             <Box
+              className="chatbot-activation-indicator"
+              onClick={onActivationIndicatorClick}
               sx={{
                 position: 'fixed',
                 bottom: 80,
@@ -71,12 +82,16 @@ export const ChatBotUI: React.FC<ChatBotUIProps> = ({
                 color: 'white',
                 borderRadius: 2,
                 zIndex: theme.zIndex.drawer + 1,
-                display: 'flex',
+                display:  'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 1,
+                cursor: 'pointer',
+                '&:hover': {
+                  bgcolor: 'rgba(0, 0, 0, 0.7)'
+                }
               }}
             >
-              <Mic sx={{ color: listening ? '#f44336' : 'white' }} />
+              <Mic sx={{ color: (listening || isListeningForActivation) ? '#f44336' : 'white' }} />
               Say "Hey Jarvis"
             </Box>
           )}
@@ -125,79 +140,88 @@ export const ChatBotUI: React.FC<ChatBotUIProps> = ({
             sx={{ 
               flex: 1, 
               overflowY: 'auto', 
+              overflowX: 'hidden',
               p: 2,
               display: 'flex',
-              flexDirection: 'column', // Change to column-reverse
-              gap: 1
+              flexDirection: 'column',
+              gap: 1,
+              scrollBehavior: 'smooth'
             }}
           >
-            {messages.map((msg, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: 'flex',
-                  justifyContent: msg.isUser ? 'flex-end' : 'flex-start',
-                  mb: 1
-                }}
-              >
+            {messages.map((msg, index) => {
+              // Skip invalid messages
+              if (!msg?.text || typeof msg.text !== 'string') {
+                console.warn('Invalid message format:', msg);
+                return null;
+              }
+              return (
                 <Box
+                  key={index}
                   sx={{
-                    bgcolor: msg.isUser ? 'primary.main' : 'grey.100',
-                    color: msg.isUser ? 'white' : 'text.primary',
-                    p: 1.5,
-                    borderRadius: 2,
-                    maxWidth: '80%',
-                    whiteSpace: 'pre-line'
+                    display: 'flex',
+                    justifyContent: msg.isUser ? 'flex-end' : 'flex-start',
+                    mb: 1
                   }}
                 >
-                  <Typography variant="body2">{msg.text}</Typography>
-                  {!msg.isUser && (
-                    index === messages.length - 1 &&
-                    (msg.text.toLowerCase().includes('how can i help you') ||
-                    msg.text.toLowerCase().includes('i can help you with'))
-                ) && (
-                    <>
-                      <Box className="quick-actions">
-                      <Button
-                        variant="outlined" 
-                        size="small" 
-                        className="action-button"
-                        onClick={() => setInputValueAndSend("add transaction")}
-                      >
-                        Add Transaction
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        className="action-button"
-                        onClick={() => setInputValueAndSend("show balance")}
-                      >
-                        Check Balance
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        className="action-button"
-                        onClick={() => setInputValueAndSend("show summary")}
-                      >
-                        View Summary
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        className="action-button"
-                        onClick={() => setInputValueAndSend("budget help")}
-                      >
-                        Budget Help
-                      </Button>
-                    </Box>
-                    </>
-                  )}
+                  <Box
+                    sx={{
+                      bgcolor: msg.isUser ? 'primary.main' : 'grey.100',
+                      color: msg.isUser ? 'white' : 'text.primary',
+                      p: 1.5,
+                      borderRadius: 2,
+                      maxWidth: '80%',
+                      whiteSpace: 'pre-line'
+                    }}
+                  >
+                    <Typography variant="body2">
+                      {typeof msg.text === 'string' ? msg.text : JSON.stringify(msg.text)}
+                    </Typography>
+                    {!msg.isUser && 
+                      index === messages.length - 1 &&
+                      (msg.text.toLowerCase().includes('how can i help you') ||
+                       msg.text.toLowerCase().includes('i can help you with')) && (
+                      <Box className="quick-actions" sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <Button
+                          variant="outlined" 
+                          size="small" 
+                          className="action-button"
+                          onClick={() => setInputValueAndSend("add transaction")}
+                        >
+                          Add Transaction
+                        </Button>
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          className="action-button"
+                          onClick={() => setInputValueAndSend("show balance")}
+                        >
+                          Check Balance
+                        </Button>
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          className="action-button"
+                          onClick={() => setInputValueAndSend("show summary")}
+                        >
+                          View Summary
+                        </Button>
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          className="action-button"
+                          onClick={() => setInputValueAndSend("budget help")}
+                        >
+                          Budget Help
+                        </Button>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            ))}
-            <div ref={messagesEndRef} />
+              );
+            })}
+            <div ref={messagesEndRef} style={{ float: 'left', clear: 'both' }} />
           </Box>
+
           <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
             <IconButton 
               color={listening ? "error" : "primary"} 
@@ -217,23 +241,19 @@ export const ChatBotUI: React.FC<ChatBotUIProps> = ({
                 fontSize: 'inherit',
                 resize: 'none',
                 minHeight: '40px',
-                maxHeight: '100px'
+                maxHeight: '100px',
+                backgroundColor: listening ? 'rgba(0, 0, 0, 0.05)' : 'inherit'
               }}
               value={listening ? transcript : inputValue}
-              onChange={(e) => onInputChange(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  onSend();
-                }
-              }}
-              placeholder={isProcessing ? "Please wait..." : "Type your message..."}
-              disabled={isProcessing}
+              onChange={(e) => !listening && onInputChange(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={listening ? "Listening..." : "Type your message..."}
+              disabled={listening || isProcessing}
             />
             <IconButton 
               color="primary" 
               onClick={onSend}
-              disabled={isProcessing || (!inputValue && !transcript)}
+              disabled={isProcessing || (!inputValue.trim() && !transcript.trim())}
             >
               <Send />
             </IconButton>

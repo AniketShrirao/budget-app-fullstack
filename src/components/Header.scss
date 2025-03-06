@@ -7,6 +7,10 @@
   right: 0;
   z-index: 1100;
 
+  &.MuiAppBar-positionFixed {
+    border-radius: 0;
+  }
+
   .toolbar {
     min-height: var(--header-height);
     display: flex;

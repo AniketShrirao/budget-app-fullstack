@@ -41,13 +41,15 @@ Would you like me to help you with anything specific?`,
 export const VOICE_COMMANDS = {
   ACTIVATE: ['hey jarvis', 'hi jarvis', 'hello jarvis', 'jarvis'],
   TURN_ON_MIC: ['turn on mic', 'start listening', 'start mic', 'start', 'wake up'],
-  TURN_OFF: ['turn off mic', 'stop listening', 'stop mic', 'pause', 'close chat', 'goodbye', 'bye jarvis'],
+  TURN_OFF_MIC: ['turn off mic', 'stop listening', 'stop mic', 'pause'],
+  CLOSE_CHAT: ['close chat', 'goodbye', 'bye jarvis', 'close jarvis', 'exit', 'close', 'bye'],
   SEND_MESSAGE: ['send', 'send message', 'submit', 'send this']
 };
 
 export const CHAT_RESPONSES = {
   INITIAL: "Hi! I'm your budget assistant. How can I help you?",
   MIC_ON: "Voice input activated. You can speak now.",
+  MIC_OFF: "Voice input stopped. Click the microphone icon or say 'start listening' to resume.",
   CLOSING: "Goodbye! Call me anytime by saying 'Hey Jarvis'.",
   ACTIVATED: "Hello! How can I help you today?",
   LISTENING: "I'm listening...",
@@ -61,9 +63,9 @@ export const CHAT_RESPONSES = {
 };
 
 export const SPEECH_RECOGNITION_CONFIG = {
-  continuous: true, // Change to true for continuous listening
+  continuous: true,
   language: 'en-US',
-  interimResults: true, // Change to true to get partial results
+  interimResults: true,
   maxAlternatives: 1
 };
 

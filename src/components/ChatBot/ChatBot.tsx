@@ -2,38 +2,32 @@ import { useChatSpeech } from '../../hooks/useChatSpeech';
 import { useChatController } from './ChatBotController';
 import { ChatBotUI } from './ChatBotUI';
 import { processCommand } from '../../utils/chatHandlers';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { ChatMessage } from '../../types/chatbot';
+import {  CHAT_RESPONSES, SPEECH_RECOGNITION_CONFIG } from '../../constants/chatbot';
+import SpeechRecognition from 'react-speech-recognition';
 
 const ChatBot = () => {
   const auth = useAuth();
 
-  // Return null if user is not authenticated
   if (!auth?.user) {
     return null;
   }
-  const {
-    isOpen,
-    setIsOpen,
-    messages,
-    setMessages,
-    inputValue,
-    setInputValue,
-    isProcessing,
-    isListeningForActivation,
-    setIsListeningForActivation,
-    messagesEndRef,
-    inputRef,
-    handleSend,
-    handleClose,
-    handleVoiceInput
-  } = useChatController();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { text: CHAT_RESPONSES.INITIAL, isUser: false }
+  ]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isListeningForActivation, setIsListeningForActivation] = useState(true);
 
   const {
     transcript,
     listening,
     resetTranscript,
-    browserSupportsSpeechRecognition
+    // browserSupportsSpeechRecognition,
+    setIsExplicitlyStopped
   } = useChatSpeech(
     isOpen,
     setIsOpen,
@@ -42,78 +36,106 @@ const ChatBot = () => {
     isProcessing,
     setIsListeningForActivation
   );
-  // Handle voice commands with proper message display
+
+  const {
+    inputValue,
+    setInputValue,
+    messagesEndRef,
+    inputRef,
+    handleSend,
+    handleVoiceInput
+  } = useChatController(listening, setIsExplicitlyStopped);
+  // Add scroll effect
+  useEffect(() => {
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest'
+        });
+      }
+    };
+  // Call immediately and after a short delay to ensure content is rendered
+  scrollToBottom();
+  const timeoutId = setTimeout(scrollToBottom, 100);
+  return () => clearTimeout(timeoutId);
+  }, [messages, isProcessing]); // Add isProcessing to dependencies to scroll after bot responses
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setIsListeningForActivation(false);
+    setIsProcessing(false);
+    SpeechRecognition.stopListening();
+    setIsExplicitlyStopped(true);
+    setMessages([{ text: CHAT_RESPONSES.CLOSING, isUser: false }]);
+    setTimeout(() => {
+      setMessages([{ text: CHAT_RESPONSES.INITIAL, isUser: false }]);
+    }, 1000);
+  }, []);
+
   const handleVoiceCommand = useCallback(async (message: string) => {
     if (!message.trim() || isProcessing) return;
     
     const displayMessage = message.trim();
-    const isCommand = displayMessage.startsWith('/');
-    const commandToSend = isCommand ? displayMessage.slice(1) : displayMessage;
-    
     setMessages(prev => [...prev, { text: displayMessage, isUser: true }]);
     setInputValue('');
-    await handleSend(commandToSend);
-    resetTranscript();
-  }, [handleSend, isProcessing, setInputValue, setMessages, resetTranscript]);
-  // Process voice input with timeout
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-  
-    if (transcript && isOpen && !isProcessing) {
-      timeoutId = setTimeout(() => {
-        const response = processCommand(transcript, {
-          handleMicToggle: handleVoiceInput,
-          handleClose,
-          handleSend: handleVoiceCommand
-        });
-        
-        if (response) {
-          setMessages(prev => [...prev, { text: response, isUser: false }]);
-          resetTranscript();
-        }
-      }, 1000);
+    
+    // Process the command
+    const response = processCommand(displayMessage, {
+      handleMicToggle: () => {
+        handleVoiceInput();
+        setIsExplicitlyStopped(true);
+        // Remove the setMessages here since it's handled in handleVoiceInput
+      },
+      handleClose,
+      handleSend
+    });
+    
+    if (response) {
+      setMessages(prev => [...prev, { text: response, isUser: false }]);
     }
-  
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+    resetTranscript();
+  }, [handleSend, isProcessing, setInputValue, resetTranscript, handleClose, handleVoiceInput]);
+
+  // Handle transcript changes
+  useEffect(() => {
+    if (!transcript || !isOpen || isProcessing) return;
+
+    const timeoutId = setTimeout(() => {
+      handleVoiceCommand(transcript);
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [transcript, isOpen, isProcessing, handleVoiceCommand]);
+
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const container = document.querySelector('.chatbot-container');
+      if (isOpen && container && !container.contains(event.target as Node)) {
+        handleClose();
       }
     };
-  }, [transcript, isOpen, isProcessing, handleVoiceInput, handleClose, handleVoiceCommand, setMessages, resetTranscript]);
-  // Handle quick actions and manual input
-  const setInputValueAndSend = async (value: string) => {
-    if (!value.trim() || isProcessing) return;
-    
-    const displayValue = value.trim();
-    const isCommand = displayValue.startsWith('/');
-    const commandToSend = isCommand ? displayValue.slice(1) : displayValue;
-    
-    setMessages(prev => [...prev, { text: displayValue, isUser: true }]);
-    setInputValue('');
-    await handleSend(commandToSend);
-  };
-  const handleManualSend = async () => {
-    const messageToSend = listening ? transcript : inputValue;
-    if (!messageToSend.trim() || isProcessing) return;
-    
-    const displayMessage = messageToSend.trim();
-    const isCommand = displayMessage.startsWith('/');
-    const commandToSend = isCommand ? displayMessage.slice(1) : displayMessage;
-    
-    setMessages(prev => [...prev, { text: displayMessage, isUser: true }]);
-    setInputValue('');
-    await handleSend(commandToSend);
-    
-    if (listening) {
-      resetTranscript();
-    }
-  };
-  if (!browserSupportsSpeechRecognition) {
-    return null;
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, handleClose]);
+
+const handleActivationIndicatorClick = useCallback(() => {
+  if (listening) {
+    setIsListeningForActivation(false);
+    setIsExplicitlyStopped(true);
+    SpeechRecognition.stopListening();
+  } else {
+    setIsListeningForActivation(true);
+    setIsExplicitlyStopped(false);
+    SpeechRecognition.startListening(SPEECH_RECOGNITION_CONFIG);
   }
+}, [listening]);
 
   return (
     <ChatBotUI
+      onActivationIndicatorClick={() => handleActivationIndicatorClick()}
       isOpen={isOpen}
       messages={messages}
       inputValue={inputValue}
@@ -123,12 +145,20 @@ const ChatBot = () => {
       isListeningForActivation={isListeningForActivation}
       messagesEndRef={messagesEndRef}
       inputRef={inputRef}
-      onOpen={() => setIsOpen(true)}
+      onOpen={() => {
+        setIsOpen(true);
+        setIsListeningForActivation(false);
+        setIsExplicitlyStopped(false);
+        handleVoiceInput();
+      }}
       onClose={handleClose}
-      onSend={handleManualSend}
+      onSend={() => handleVoiceCommand(transcript || inputValue)}
       onInputChange={setInputValue}
       onVoiceInput={handleVoiceInput}
-      setInputValueAndSend={setInputValueAndSend}
+      setInputValueAndSend={(value) => {
+        setInputValue(value);
+        handleVoiceCommand(value);
+      }}
     />
   );
 };

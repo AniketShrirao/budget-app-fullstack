@@ -10,40 +10,36 @@ export const processCommand = (
 ): string => {
   const text = input.toLowerCase().trim();
   
-  // Handle voice-specific commands if handlers are provided
+  // Handle voice-specific commands first
   if (handlers) {
-    // Check for send command first
-    if (VOICE_COMMANDS.SEND_MESSAGE.some(cmd => text.includes(cmd))) {
-      const cleanText = text
-        .replace(/send|submit|send message/gi, '')
-        .trim();
-      if (cleanText && handlers.handleSend) {
-        handlers.handleSend(cleanText);
-      }
-      return '';
+    // Check for chat close commands
+    if (VOICE_COMMANDS.CLOSE_CHAT.some(cmd => text.includes(cmd))) {
+      handlers.handleClose?.();
+      return CHAT_RESPONSES.CLOSING;
     }
 
     // Check for mic toggle commands
-    if (VOICE_COMMANDS.TURN_ON_MIC.some(cmd => text.includes(cmd))) {
+    if (VOICE_COMMANDS.TURN_OFF_MIC.some(cmd => text.includes(cmd))) {
       handlers.handleMicToggle?.();
-      return CHAT_RESPONSES.MIC_ON;
+      return CHAT_RESPONSES.MIC_OFF;
     }
 
-    // Check for turn off commands
-    if (VOICE_COMMANDS.TURN_OFF.some(cmd => text.includes(cmd))) {
-      handlers.handleClose?.();
-      return CHAT_RESPONSES.CLOSING;
+    // Check for send command
+    if (VOICE_COMMANDS.SEND_MESSAGE.some(cmd => text.includes(cmd))) {
+      const cleanText = text
+        .replace(/send|submit|send message|send this/gi, '')
+        .trim();
+      if (cleanText && handlers.handleSend) {
+        handlers.handleSend(cleanText);
+        return '';
+      }
     }
   }
 
   // Process chat commands
-  for (const { command, response } of Object.values(CHAT_COMMANDS)) {
-    if (command.some(cmd => text.includes(cmd))) {
-      if (handlers?.handleSend) {
-        handlers.handleSend(text);
-        return '';
-      }
-      return response;
+  for (const [, value] of Object.entries(CHAT_COMMANDS)) {
+    if (value.command.some(cmd => text.includes(cmd))) {
+      return value.response;
     }
   }
 

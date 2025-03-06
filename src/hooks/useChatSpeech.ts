@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { SPEECH_RECOGNITION_CONFIG, CHAT_RESPONSES, VOICE_COMMANDS } from '../constants/chatbot';
+import { SPEECH_RECOGNITION_CONFIG, CHAT_RESPONSES, VOICE_COMMANDS, CHAT_COMMANDS } from '../constants/chatbot';
 
 export const useChatSpeech = (
   isOpen: boolean,
@@ -12,6 +12,7 @@ export const useChatSpeech = (
 ) => {
   const [isSpeechInitialized, setIsSpeechInitialized] = useState(false);
   const [isStartingListening, setIsStartingListening] = useState(false);
+  const [isExplicitlyStopped, setIsExplicitlyStopped] = useState(false);
 
   const {
     transcript,
@@ -27,72 +28,71 @@ export const useChatSpeech = (
             setIsOpen(true);
             setIsListeningForActivation(false);
             resetTranscript();
-            setMessages((prev: any) => [...prev, { text: CHAT_RESPONSES.ACTIVATED, isUser: false }]);
+            setIsExplicitlyStopped(false);
+            setMessages((prev: Array<{ text: string; isUser: boolean }>) => [
+              ...prev,
+              { text: CHAT_RESPONSES.ACTIVATED, isUser: false },
+              { text: CHAT_COMMANDS.HELP.response, isUser: false }
+            ]);
           }
         },
         isFuzzyMatch: true,
-        fuzzyMatchingThreshold: 0.8,
+        fuzzyMatchingThreshold: 0.6,
         bestMatchOnly: true
       }
     ]
   });
+  // Start listening on component mount
+  useEffect(() => {
+    if (browserSupportsSpeechRecognition && !isSpeechInitialized) {
+      SpeechRecognition.startListening(SPEECH_RECOGNITION_CONFIG);
+      setIsSpeechInitialized(true);
+    }
+  }, [browserSupportsSpeechRecognition, isSpeechInitialized]);
 
+  // Handle listening state changes
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
 
     const startListening = async () => {
-      if (!listening && browserSupportsSpeechRecognition && !isProcessing && !isStartingListening) {
+      if (!listening && browserSupportsSpeechRecognition && !isProcessing && !isStartingListening && !isExplicitlyStopped) {
         setIsStartingListening(true);
         try {
           await SpeechRecognition.startListening(SPEECH_RECOGNITION_CONFIG);
-          if (!isSpeechInitialized) {
-            setIsSpeechInitialized(true);
-          }
+          setMessages((prev: Array<{ text: string; isUser: boolean }>) => [...prev, { text: CHAT_RESPONSES.MIC_ON, isUser: false }]);
         } catch (error) {
           console.error('Failed to start listening:', error);
+          setMessages((prev: Array<{ text: string; isUser: boolean }>) => [...prev, { text: CHAT_RESPONSES.ERROR, isUser: false }]);
         } finally {
           setIsStartingListening(false);
         }
       }
     };
 
-    const restartListening = () => {
-      if (browserSupportsSpeechRecognition && (isOpen || isListeningForActivation)) {
-        timeoutId = setTimeout(startListening, 300);
-      }
-    };
-
-    restartListening();
+    if (isListeningForActivation && !listening && !isStartingListening && !isExplicitlyStopped) {
+      timeoutId = setTimeout(startListening, 300);
+    }
 
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
-      if (!isOpen && !isListeningForActivation) {
-        SpeechRecognition.stopListening();
-      }
     };
   }, [
     browserSupportsSpeechRecognition,
-    isOpen,
     isProcessing,
-    isListeningForActivation,
     listening,
-    isStartingListening
+    isStartingListening,
+    isExplicitlyStopped,
+    isListeningForActivation,
+    setMessages
   ]);
-
-  // Stop listening when chat is closed
-  useEffect(() => {
-    if (!isOpen && !isListeningForActivation) {
-      SpeechRecognition.stopListening();
-    }
-  }, [isOpen, isListeningForActivation]);
 
   return {
     transcript,
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition,
-    isSpeechInitialized
+    setIsExplicitlyStopped
   };
 };

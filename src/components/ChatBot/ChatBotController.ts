@@ -5,7 +5,10 @@ import { processCommand } from '../../utils/chatHandlers';
 import SpeechRecognition from 'react-speech-recognition';
 import { SPEECH_RECOGNITION_CONFIG } from '../../constants/chatbot';
 
-export const useChatController = () => {
+export const useChatController = (
+  listening: boolean,
+  setIsExplicitlyStopped: (value: boolean) => void
+) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { text: INITIAL_MESSAGE, isUser: false }
@@ -44,18 +47,18 @@ export const useChatController = () => {
     SpeechRecognition.stopListening();
     setMessages(prev => [...prev, { text: CHAT_RESPONSES.CLOSING, isUser: false }]);
   }, []);
-
   const handleVoiceInput = useCallback(() => {
     try {
-        console.log('handleVoiceInput called', );
-      // Create a state variable to track listening status
-      const isCurrentlyListening = SpeechRecognition.browserSupportsSpeechRecognition() && !isProcessing;
-
-      if (isCurrentlyListening) {
+      console.log('handleVoiceInput called');
+      // const isCurrentlyListening = SpeechRecognition.browserSupportsSpeechRecognition() && !isProcessing;
+      
+      if (listening) {
         SpeechRecognition.stopListening();
-        setMessages(prev => [...prev, { text: CHAT_RESPONSES.PAUSED, isUser: false }]);
+        setMessages(prev => [...prev, { text: CHAT_RESPONSES.MIC_OFF, isUser: false }]);
+        setIsExplicitlyStopped(true);
       } else {
         setInputValue('');
+        setIsExplicitlyStopped(false);
         SpeechRecognition.startListening(SPEECH_RECOGNITION_CONFIG);
         setMessages(prev => [...prev, { text: CHAT_RESPONSES.MIC_ON, isUser: false }]);
       }
@@ -63,7 +66,7 @@ export const useChatController = () => {
       console.error('Failed to handle voice input:', error);
       setMessages(prev => [...prev, { text: CHAT_RESPONSES.ERROR, isUser: false }]);
     }
-  }, []);
+  }, [isProcessing, setInputValue, setMessages, listening, setIsExplicitlyStopped]);
   // Update the scroll effect to be more reliable
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -73,7 +76,7 @@ export const useChatController = () => {
           behavior: 'smooth',
           block: 'end'
         });
-      }, 100);
+      }, 0);
     }
   }, [messages]);
   return {
